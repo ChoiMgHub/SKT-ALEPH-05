@@ -1,0 +1,35 @@
+[
+  {
+    "id": "tpl_1",
+    "title": "보안 장애 긴급 알림 (1:1)",
+    "text": "AI 인프라 장애 발생! 🚨\n지금 당장 서버 보안 프로토콜을 확인하라.",
+    "ratio": "1:1",
+    "fontSize": 38,
+    "posY": 75,
+    "color": "#ffffff",
+    "banner": "true",
+    "align": "center"
+  },
+  {
+    "id": "tpl_2",
+    "title": "인프라 엔지니어의 명언 (4:5)",
+    "text": "“모니터링 없는 배포는\n눈을 감고 고속도로를 달리는 것과 같다.”",
+    "ratio": "4:5",
+    "fontSize": 36,
+    "posY": 50,
+    "color": "#facc15",
+    "banner": "true",
+    "align": "center"
+  },
+  {
+    "id": "tpl_3",
+    "title": "데일리 커밋 다짐 (9:16)",
+    "text": "어제보다 단 1%라도 단단하게.\n오늘도 무중단 성장 기록 🚀",
+    "ratio": "9:16",
+    "fontSize": 42,
+    "posY": 80,
+    "color": "#38bdf8",
+    "banner": "true",
+    "align": "center"
+  }
+]

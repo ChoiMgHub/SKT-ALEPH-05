@@ -708,14 +708,27 @@
         const div = document.createElement('div');
         div.className = 'template-item';
         div.setAttribute('role', 'listitem');
-        div.innerHTML = `
-          <span>${item.title}</span>
-          <div class="template-actions">
-            <button type="button" class="btn-primary load-btn" data-id="${item.id}" aria-label="${item.title} 불러오기">불러오기(R)</button>
-            <button type="button" class="btn-success edit-btn" data-id="${item.id}" aria-label="${item.title} 현재 설정으로 수정">수정(U)</button>
-            <button type="button" class="btn-danger del-btn" data-id="${item.id}" aria-label="${item.title} 삭제">삭제(D)</button>
-          </div>
-        `;
+        // 저장된 이름과 ID는 HTML이 아닌 값으로 넣어 특수문자도 그대로 보존한다.
+        const titleSpan = document.createElement('span');
+        titleSpan.textContent = item.title;
+        div.appendChild(titleSpan);
+
+        const actions = document.createElement('div');
+        actions.className = 'template-actions';
+        [
+          ['btn-primary load-btn', '불러오기(R)', '불러오기'],
+          ['btn-success edit-btn', '수정(U)', '현재 설정으로 수정'],
+          ['btn-danger del-btn', '삭제(D)', '삭제']
+        ].forEach(([className, text, label]) => {
+          const button = document.createElement('button');
+          button.type = 'button';
+          button.className = className;
+          button.dataset.id = item.id;
+          button.setAttribute('aria-label', `${item.title} ${label}`);
+          button.textContent = text;
+          actions.appendChild(button);
+        });
+        div.appendChild(actions);
         container.appendChild(div);
       });
 
