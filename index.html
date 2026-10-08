@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SKT ALEPH 03 | 짤·카드 스튜디오</title>
+  <style>
+    /* WCAG AA 고대비 다크/슬레이트 테마 */
+    :root {
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --border: #334155;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --danger: #dc2626;
+      --danger-hover: #b91c1c;
+      --success: #16a34a;
+      --focus-ring: #60a5fa;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans KR", sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.4;
+      padding: 1.25rem 1rem;
+      overflow-x: hidden;
+    }
+
+    *:focus-visible {
+      outline: 3px solid var(--focus-ring);
+      outline-offset: 2px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    header {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.85rem 1.2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    h1 {
+      font-size: 1.25rem;
+      color: #38bdf8;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .app-layout {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.25rem;
+    }
+
+    @media (min-width: 992px) {
+      .app-layout {
+        grid-template-columns: 1.15fr 1fr;
+        align-items: start;
+      }
+    }
+
+    .card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+    }
+
+    h2 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #f1f5f9;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0.4rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* 캔버스 미리보기 영역 */
+    .preview-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background-color: #020617;
+      border: 2px dashed var(--border);
+      border-radius: 8px;
+      padding: 1rem;
+      min-height: 420px;
+    }
+
+    canvas {
+      max-width: 100%;
+      max-height: 480px;
+      height: auto;
+      border-radius: 4px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+      background-color: #1e293b;
+    }
+
+    /* 폼 요소 및 컨트롤러 */
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    label {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    input[type="text"], textarea, select {
+      background-color: #0f172a;
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.5rem 0.65rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-family: inherit;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 65px;
+    }
+
+    .row-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.6rem;
+    }
+
+    .row-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 0.5rem;
+    }
+
+    /* 버튼 스타일 */
+    button, .btn-label {
+      background-color: #334155;
+      color: #ffffff;
+      border: 1px solid var(--border);
+      padding: 0.5rem 0.85rem;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.35rem;
+      text-decoration: none;
+      transition: background-color 0.15s ease;
+    }
+
+    button:hover, .btn-label:hover {
+      background-color: #475569;
+    }
+
+    .btn-primary {
+      background-color: var(--primary);
+      border-color: var(--primary);
+    }
+
+    .btn-primary:hover {
+      background-color: var(--primary-hover);
+    }
+
+    .btn-danger {
+      background-color: var(--danger);
+      border-color: var(--danger);
+    }
+
+    .btn-danger:hover {
+      background-color: var(--danger-hover);
+    }
+
+    .btn-success {
+      background-color: var(--success);
+      border-color: var(--success);
+    }
+
+    /* 알림 메시지 배너 (에러/성공 알림: T03-C10) */
+    .alert {
+      display: none;
+      padding: 0.6rem 0.85rem;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      line-height: 1.35;
+    }
+
+    .alert-error {
+      background-color: #450a0a;
+      border: 1px solid #dc2626;
+      color: #fecaca;
+    }
+
+    .alert-success {
+      background-color: #052e16;
+      border: 1px solid #16a34a;
+      color: #bbf7d0;
+    }
+
+    /* 템플릿 관리 목록 */
+    .template-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+      max-height: 170px;
+      overflow-y: auto;
+      padding-right: 0.25rem;
+    }
+
+    .template-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background-color: #0f172a;
+      border: 1px solid var(--border);
+      padding: 0.45rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.82rem;
+    }
+
+    .template-item span {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: 170px;
+      font-weight: 500;
+    }
+
+    .template-actions {
+      display: flex;
+      gap: 0.35rem;
+    }
+
+    .template-actions button {
+      padding: 0.25rem 0.45rem;
+      font-size: 0.75rem;
+    }
+  </style>
+</head>
+<body>
+
+  <main class="container">
+    
+    <header>
+      <h1>🖼️ 짤·카드 스튜디오 (SKT ALEPH-03)</h1>
+      <span style="font-size: 0.8rem; color: var(--text-muted);">
+        비율 일치·극한 입력 방어·JSON 템플릿 무결성 지원
+      </span>
+    </header>
+
+    <!-- 에러 및 상태 알림 배너 (T03-C10: 거부 사유 명시) -->
+    <div id="alert-box" class="alert" role="alert" aria-live="assertive"></div>
+
+    <div class="app-layout">
+      
+      <!-- 좌측: 캔버스 미리보기 및 내보내기/비율 설정 -->
+      <section class="card" aria-label="미리보기 및 이미지 다운로드">
+        <h2>
+          <span>라이브 미리보기</span>
+          <span id="canvas-dim-label" style="font-size: 0.8rem; color: #38bdf8;">1:1 (720x720)</span>
+        </h2>
+
+        <!-- 카드 2: 3대 SNS 화면비 선택 (T03-C11 ~ T03-C13) -->
+        <div class="row-3">
+          <button type="button" class="ratio-btn btn-primary" data-ratio="1:1">1:1 피드</button>
+          <button type="button" class="ratio-btn" data-ratio="4:5">4:5 세로</button>
+          <button type="button" class="ratio-btn" data-ratio="9:16">9:16 스토리</button>
+        </div>
+
+        <div class="preview-container">
+          <canvas id="main-canvas" width="720" height="720" aria-label="편집 중인 짤/카드 이미지"></canvas>
+        </div>
+
+        <!-- 이미지 다운로드 (EXIF 위치 메타데이터 0건 보장: T03-C28) -->
+        <button type="button" class="btn-primary" id="download-btn" style="padding: 0.75rem;">
+          💾 완성된 카드 이미지 다운로드 (PNG)
+        </button>
+      </section>
+
+      <!-- 우측: 편집 도구, 템플릿 CRUD, JSON 백업/복원 -->
+      <div style="display: flex; flex-direction: column; gap: 1rem;">
+        
+        <!-- 카드 1: 이미지 및 텍스트 편집 도구 (T03-C03 ~ T03-C08) -->
+        <section class="card" aria-label="문구 및 이미지 편집 도구">
+          <h2>카드 콘텐츠 편집</h2>
+
+          <!-- 이미지 업로드 및 유효성 검사 (T03-C04, C05, C09, C10) -->
+          <div class="form-group">
+            <label for="image-upload">배경 이미지 선택 (PNG, JPEG 지원)</label>
+            <input type="file" id="image-upload" accept="image/png, image/jpeg" />
+          </div>
+
+          <!-- 문구 입력 (카드 3: 극한 입력 12건 자동 줄바꿈 지원) -->
+          <div class="form-group">
+            <label for="card-text">표시할 문구 (줄바꿈·이모지·긴 문장 지원)</label>
+            <textarea id="card-text">AI 인프라 장애 발생! 🚨
+지금 당장 서버 보안 프로토콜을 확인하라.</textarea>
+          </div>
+
+          <!-- 문구 스타일 컨트롤 (T03-C06 ~ T03-C08) -->
+          <div class="row-3">
+            <div class="form-group">
+              <label for="font-size">글자 크기 (<span id="size-val">38</span>px)</label>
+              <input type="range" id="font-size" min="20" max="72" value="38" />
+            </div>
+            <div class="form-group">
+              <label for="pos-y">세로 위치 (<span id="pos-val">75</span>%)</label>
+              <input type="range" id="pos-y" min="10" max="90" value="75" />
+            </div>
+            <div class="form-group">
+              <label for="text-color">글자 색상</label>
+              <input type="color" id="text-color" value="#ffffff" style="height: 38px; padding: 2px; width: 100%; cursor: pointer;" />
+            </div>
+          </div>
+
+          <div class="row-2">
+            <div class="form-group">
+              <label for="bg-banner">가독성 검은 반투명 바</label>
+              <select id="bg-banner">
+                <option value="true" selected>적용 (텍스트 보호)</option>
+                <option value="false">미적용</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="text-align">텍스트 정렬</label>
+              <select id="text-align">
+                <option value="center" selected>가운데 정렬</option>
+                <option value="left">왼쪽 정렬</option>
+                <option value="right">오른쪽 정렬</option>
+              </select>
+            </div>
+          </div>
+        </section>
+
+        <!-- 카드 4: 템플릿 관리 (CRUD & LocalStorage 영구 보존: T03-C17 ~ T03-C21) -->
+        <section class="card" aria-label="템플릿 CRUD 관리">
+          <h2>
+            <span>사용자 템플릿 (CRUD)</span>
+            <span id="tpl-count" style="font-size: 0.78rem; color: var(--text-muted);">3개 등록됨</span>
+          </h2>
+          
+          <div class="row-2">
+            <input type="text" id="tpl-title-input" placeholder="새 템플릿 이름 입력" />
+            <button type="button" class="btn-success" id="tpl-save-btn">➕ 현재 설정 저장 (C)</button>
+          </div>
+
+          <div class="template-list" id="template-list-box" role="list">
+            <!-- 자바스크립트로 동적 렌더링 -->
+          </div>
+        </section>
+
+        <!-- 카드 5: JSON 백업 및 무결성 검증 (T03-C22 ~ T03-C24) -->
+        <section class="card" aria-label="JSON 백업 및 복원">
+          <h2>JSON 백업 & 검증 복원</h2>
+          <div class="row-2">
+            <button type="button" id="export-json-btn">📤 템플릿 JSON 내보내기</button>
+            <label class="btn-label" for="import-json-input" style="margin: 0;">
+              📥 JSON 불러오기
+              <input type="file" id="import-json-input" accept=".json,application/json" style="display: none;" />
+            </label>
+          </div>
+        </section>
+
+      </div>
+    </div>
+  </main>
+
+  <script>
+    /* ==========================================================================
+       1. 전역 상태 및 캔버스 초기화
+       ========================================================================== */
+    const canvas = document.getElementById('main-canvas');
+    const ctx = canvas.getContext('2d');
+    const dimLabel = document.getElementById('canvas-dim-label');
+    const alertBox = document.getElementById('alert-box');
+
+    // 편집 상태
+    let currentRatio = '1:1';
+    let uploadedImage = null; // 로드된 Image 객체
+
+    // 비율별 해상도 정의 (카드 2 완벽 일치: T03-C11 ~ T03-C13)
+    const RATIO_DIMS = {
+      '1:1': { width: 720, height: 720 },
+      '4:5': { width: 720, height: 900 },
+      '9:16': { width: 720, height: 1280 }
+    };
+
+    // 알림 메시지 출력 함수 (T03-C10)
+    function showAlert(msg, isError = true) {
+      alertBox.textContent = msg;
+      alertBox.className = `alert ${isError ? 'alert-error' : 'alert-success'}`;
+      alertBox.style.display = 'block';
+      setTimeout(() => {
+        alertBox.style.display = 'none';
+      }, 3500);
+    }
+
+    /* ==========================================================================
+       2. 캔버스 렌더링 엔진 (카드 3: 극한 입력 12건 자동 줄바꿈 래퍼 포함)
+       ========================================================================== */
+    function renderCanvas() {
+      const { width, height } = RATIO_DIMS[currentRatio];
+      canvas.width = width;
+      canvas.height = height;
+      dimLabel.textContent = `${currentRatio} (${width}x${height})`;
+
+      // 1. 배경 렌더링
+      if (uploadedImage) {
+        // 이미지 비율 유지 채우기 (cover 방식)
+        const imgRatio = uploadedImage.width / uploadedImage.height;
+        const targetRatio = width / height;
+        let renderW, renderH, offsetX, offsetY;
+
+        if (imgRatio > targetRatio) {
+          renderH = height;
+          renderW = height * imgRatio;
+          offsetX = (width - renderW) / 2;
+          offsetY = 0;
+        } else {
+          renderW = width;
+          renderH = width / imgRatio;
+          offsetX = 0;
+          offsetY = (height - renderH) / 2;
+        }
+        ctx.drawImage(uploadedImage, offsetX, offsetY, renderW, renderH);
+      } else {
+        // 기본 배경 그라디언트
+        const grad = ctx.createLinearGradient(0, 0, width, height);
+        grad.addColorStop(0, '#0f172a');
+        grad.addColorStop(1, '#1e3a8a');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, width, height);
+
+        // 안내선 가이드
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
+        ctx.font = '24px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('📷 [배경 이미지 선택]을 눌러 사진을 올려보세요', width / 2, height / 2 - 40);
+      }
+
+      // 2. 텍스트 파라미터 읽기
+      const rawText = document.getElementById('card-text').value;
+      const fontSize = parseInt(document.getElementById('font-size').value, 10);
+      const posYPercent = parseInt(document.getElementById('pos-y').value, 10);
+      const textColor = document.getElementById('text-color').value;
+      const useBgBanner = document.getElementById('bg-banner').value === 'true';
+      const textAlign = document.getElementById('text-align').value;
+
+      document.getElementById('size-val').textContent = fontSize;
+      document.getElementById('pos-val').textContent = posYPercent;
+
+      if (!rawText.trim()) return; // 빈 문구 극단 입력 시 렌더링 건너뜀 (안전 처리)
+
+      // 3. 텍스트 자동 줄바꿈 계산 (카드 3: T03-C14 긴 문장 잘림 방지)
+      ctx.font = `bold ${fontSize}px sans-serif`;
+      const maxWidth = width * 0.88;
+      const lineHeight = fontSize * 1.35;
+      const lines = [];
+
+      // \n 줄바꿈 기준 1차 분리 후, 가로폭 초과 시 단어/글자별 2차 래핑
+      rawText.split('\n').forEach(paragraph => {
+        let currentLine = '';
+        for (let i = 0; i < paragraph.length; i++) {
+          const char = paragraph[i];
+          const testLine = currentLine + char;
+          const metrics = ctx.measureText(testLine);
+          if (metrics.width > maxWidth && currentLine !== '') {
+            lines.push(currentLine);
+            currentLine = char;
+          } else {
+            currentLine = testLine;
+          }
+        }
+        lines.push(currentLine);
+      });
+
+      // 4. 세로 기준 좌표 계산
+      const totalBlockHeight = lines.length * lineHeight;
+      const startY = (height * (posYPercent / 100)) - (totalBlockHeight / 2);
+
+      // 반투명 가독성 배경 바 렌더링
+      if (useBgBanner) {
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.65)';
+        ctx.fillRect(0, startY - (lineHeight * 0.4), width, totalBlockHeight + (lineHeight * 0.7));
+      }
+
+      // 5. 텍스트 드로잉
+      ctx.fillStyle = textColor;
+      ctx.textAlign = textAlign;
+      ctx.textBaseline = 'middle';
+
+      let drawX = width / 2;
+      if (textAlign === 'left') drawX = width * 0.06;
+      if (textAlign === 'right') drawX = width * 0.94;
+
+      lines.forEach((line, index) => {
+        const lineY = startY + (index * lineHeight) + (lineHeight / 2);
+        // 가독성을 위한 텍스트 그림자
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
+        ctx.shadowBlur = 6;
+        ctx.shadowOffsetX = 2;
+        ctx.shadowOffsetY = 2;
+        ctx.fillText(line, drawX, lineY);
+      });
+
+      // 그림자 리셋
+      ctx.shadowColor = 'transparent';
+    }
+
+    /* ==========================================================================
+       3. 파일 업로드 및 안전성 검증 (카드 1: T03-C04, C05, C09, C10)
+       ========================================================================== */
+    const imageUpload = document.getElementById('image-upload');
+    imageUpload.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      // 지원 포맷 검증 (PNG, JPEG만 허용)
+      const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg'];
+      if (!allowedTypes.includes(file.type.toLowerCase())) {
+        // T03-C09, T03-C10: 거절 메시지 표시 및 기존 작업 이미지/텍스트 그대로 보존!
+        showAlert(`지원하지 않는 파일 형식입니다 (${file.type || '알 수 없음'}). PNG 또는 JPEG 이미지만 올려주세요.`, true);
+        imageUpload.value = ''; // 잘못된 선택 초기화
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+        const img = new Image();
+        img.onload = () => {
+          uploadedImage = img;
+          renderCanvas();
+          showAlert('배경 이미지가 정상적으로 적용되었습니다.', false);
+        };
+        img.src = evt.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+
+    /* ==========================================================================
+       4. 비율 변경 및 실시간 컨트롤 바인딩 (카드 2)
+       ========================================================================== */
+    document.querySelectorAll('.ratio-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.ratio-btn').forEach(b => b.classList.remove('btn-primary'));
+        btn.classList.add('btn-primary');
+        currentRatio = btn.dataset.ratio;
+        renderCanvas();
+      });
+    });
+
+    ['card-text', 'font-size', 'pos-y', 'text-color', 'bg-banner', 'text-align'].forEach(id => {
+      document.getElementById(id).addEventListener('input', renderCanvas);
+    });
+
+    // 다운로드 (EXIF 위치정보 메타데이터 0건 자동 충족: T03-C28)
+    document.getElementById('download-btn').addEventListener('click', () => {
+      const link = document.createElement('a');
+      link.download = `skt-aleph-card-${currentRatio.replace(':', '-')}-${Date.now()}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+      showAlert('성공! 메타데이터가 정제된 깨끗한 PNG 파일이 다운로드되었습니다.', false);
+    });
+
+    /* ==========================================================================
+       5. 템플릿 CRUD & LocalStorage 영구 보존 (카드 4: T03-C17 ~ T03-C21)
+       ========================================================================== */
+    const STORAGE_KEY = 'skt_aleph03_templates_v1';
+
+    // 기본 3개 시드 템플릿 (T03-C17)
+    const DEFAULT_TEMPLATES = [
+      {
+        id: 'tpl_1',
+        title: '보안 장애 긴급 알림 (1:1)',
+        text: 'AI 인프라 장애 발생! 🚨\n지금 당장 서버 보안 프로토콜을 확인하라.',
+        ratio: '1:1',
+        fontSize: 38,
+        posY: 75,
+        color: '#ffffff',
+        banner: 'true',
+        align: 'center'
+      },
+      {
+        id: 'tpl_2',
+        title: '인프라 엔지니어의 명언 (4:5)',
+        text: '“모니터링 없는 배포는\n눈을 감고 고속도로를 달리는 것과 같다.”',
+        ratio: '4:5',
+        fontSize: 36,
+        posY: 50,
+        color: '#facc15',
+        banner: 'true',
+        align: 'center'
+      },
+      {
+        id: 'tpl_3',
+        title: '데일리 커밋 다짐 (9:16)',
+        text: '어제보다 단 1%라도 단단하게.\n오늘도 무중단 성장 기록 🚀',
+        ratio: '9:16',
+        fontSize: 42,
+        posY: 80,
+        color: '#38bdf8',
+        banner: 'true',
+        align: 'center'
+      }
+    ];
+
+    function loadTemplates() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(DEFAULT_TEMPLATES));
+          return DEFAULT_TEMPLATES;
+        }
+        return JSON.parse(raw);
+      } catch (e) {
+        return DEFAULT_TEMPLATES;
+      }
+    }
+
+    function saveTemplates(tplArray) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(tplArray));
+      renderTemplateList();
+    }
+
+    function renderTemplateList() {
+      const list = loadTemplates();
+      const container = document.getElementById('template-list-box');
+      document.getElementById('tpl-count').textContent = `${list.length}개 등록됨`;
+      container.innerHTML = '';
+
+      list.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'template-item';
+        div.setAttribute('role', 'listitem');
+        div.innerHTML = `
+          <span>${item.title}</span>
+          <div class="template-actions">
+            <button type="button" class="btn-primary load-btn" data-id="${item.id}" aria-label="${item.title} 불러오기">불러오기(R)</button>
+            <button type="button" class="btn-success edit-btn" data-id="${item.id}" aria-label="${item.title} 현재 설정으로 수정">수정(U)</button>
+            <button type="button" class="btn-danger del-btn" data-id="${item.id}" aria-label="${item.title} 삭제">삭제(D)</button>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+
+      // 불러오기 (Read: T03-C18)
+      container.querySelectorAll('.load-btn').forEach(b => {
+        b.addEventListener('click', () => {
+          const item = list.find(t => t.id === b.dataset.id);
+          if (!item) return;
+          document.getElementById('card-text').value = item.text;
+          document.getElementById('font-size').value = item.fontSize;
+          document.getElementById('pos-y').value = item.posY;
+          document.getElementById('text-color').value = item.color;
+          document.getElementById('bg-banner').value = item.banner;
+          document.getElementById('text-align').value = item.align;
+
+          // 비율 변경
+          currentRatio = item.ratio;
+          document.querySelectorAll('.ratio-btn').forEach(rb => {
+            rb.classList.toggle('btn-primary', rb.dataset.ratio === currentRatio);
+          });
+
+          renderCanvas();
+          showAlert(`'${item.title}' 템플릿을 성공적으로 불러왔습니다.`, false);
+        });
+      });
+
+      // 수정 (Update: T03-C19)
+      container.querySelectorAll('.edit-btn').forEach(b => {
+        b.addEventListener('click', () => {
+          const index = list.findIndex(t => t.id === b.dataset.id);
+          if (index === -1) return;
+          list[index] = {
+            ...list[index],
+            text: document.getElementById('card-text').value,
+            fontSize: parseInt(document.getElementById('font-size').value, 10),
+            posY: parseInt(document.getElementById('pos-y').value, 10),
+            color: document.getElementById('text-color').value,
+            banner: document.getElementById('bg-banner').value,
+            align: document.getElementById('text-align').value,
+            ratio: currentRatio
+          };
+          saveTemplates(list);
+          showAlert(`'${list[index].title}' 템플릿이 현재 스타일로 수정되었습니다.`, false);
+        });
+      });
+
+      // 삭제 (Delete: T03-C20)
+      container.querySelectorAll('.del-btn').forEach(b => {
+        b.addEventListener('click', () => {
+          const filtered = list.filter(t => t.id !== b.dataset.id);
+          saveTemplates(filtered);
+          showAlert('템플릿이 삭제되었습니다.', false);
+        });
+      });
+    }
+
+    // 생성 (Create: T03-C17)
+    document.getElementById('tpl-save-btn').addEventListener('click', () => {
+      const titleInput = document.getElementById('tpl-title-input');
+      const title = titleInput.value.trim() || `새 템플릿 (${Date.now().toString().slice(-4)})`;
+      const list = loadTemplates();
+
+      const newTpl = {
+        id: `tpl_${Date.now()}`,
+        title: title,
+        text: document.getElementById('card-text').value,
+        fontSize: parseInt(document.getElementById('font-size').value, 10),
+        posY: parseInt(document.getElementById('pos-y').value, 10),
+        color: document.getElementById('text-color').value,
+        banner: document.getElementById('bg-banner').value,
+        align: document.getElementById('text-align').value,
+        ratio: currentRatio
+      };
+
+      list.unshift(newTpl);
+      saveTemplates(list);
+      titleInput.value = '';
+      showAlert(`새 템플릿 '${title}'이(가) 등록되었습니다.`, false);
+    });
+
+    /* ==========================================================================
+       6. JSON 백업 및 무결성 검증 (카드 5: T03-C22 ~ T03-C24)
+       ========================================================================== */
+    // JSON 내보내기 (Export)
+    document.getElementById('export-json-btn').addEventListener('click', () => {
+      const list = loadTemplates();
+      const blob = new Blob([JSON.stringify(list, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.download = `skt-aleph-templates-backup-${Date.now()}.json`;
+      a.href = URL.createObjectURL(blob);
+      a.click();
+      showAlert('템플릿 데이터가 JSON 파일로 백업되었습니다.', false);
+    });
+
+    // JSON 불러오기 및 무결성 검증 (Import: T03-C23, T03-C24)
+    document.getElementById('import-json-input').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+        try {
+          // T03-C23: 문법 오류 검사 (SyntaxError 방어)
+          const parsed = JSON.parse(evt.target.result);
+
+          // T03-C24: 필수 스키마 검사 (배열 여부 및 필수 키 존재 확인)
+          if (!Array.isArray(parsed) || parsed.length === 0) {
+            throw new Error('템플릿 목록 배열 데이터가 없습니다.');
+          }
+
+          const requiredKeys = ['id', 'title', 'text', 'ratio', 'fontSize', 'color'];
+          const isValidSchema = parsed.every(item => 
+            requiredKeys.every(k => Object.prototype.hasOwnProperty.call(item, k))
+          );
+
+          if (!isValidSchema) {
+            // 필수 항목 누락 시 거절
+            throw new Error('템플릿 필수 속성(id, title, text 등)이 누락되었습니다.');
+          }
+
+          // T03-C22: 검증 통과 시에만 복원
+          saveTemplates(parsed);
+          showAlert(`성공! 총 ${parsed.length}개의 템플릿이 안전하게 복원되었습니다.`, false);
+        } catch (err) {
+          // 오류 발생 시 기존 데이터 절대 훼손 금지!
+          showAlert(`JSON 검증 실패: ${err.message}. 기존 템플릿 데이터가 안전하게 유지됩니다.`, true);
+        } finally {
+          e.target.value = ''; // 재업로드 가능하도록 초기화
+        }
+      };
+      reader.readAsText(file);
+    });
+
+    // 앱 시작 시 초기 렌더링
+    renderTemplateList();
+    renderCanvas();
+  </script>
+</body>
+</html>
