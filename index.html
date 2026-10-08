@@ -269,6 +269,23 @@
       padding: 0.25rem 0.45rem;
       font-size: 0.75rem;
     }
+
+    /* 템플릿 이름 검색 (과제 05) */
+    .tpl-search-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 0.6rem;
+    }
+
+    .tpl-search-empty {
+      display: none;
+      padding: 0.6rem 0.75rem;
+      border: 1px dashed var(--border);
+      border-radius: 6px;
+      color: var(--text-muted);
+      font-size: 0.82rem;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
@@ -378,9 +395,16 @@
             <button type="button" class="btn-success" id="tpl-save-btn">➕ 현재 설정 저장 (C)</button>
           </div>
 
+          <!-- 템플릿 이름 검색 (T05-01 ~ T05-10): 목록 표시만 바꾸고 저장 데이터는 변경하지 않음 -->
+          <div class="tpl-search-row">
+            <input type="text" id="tpl-search-input" placeholder="템플릿 이름 검색" aria-label="템플릿 이름 검색" autocomplete="off" />
+            <button type="button" id="tpl-search-reset-btn">검색 초기화</button>
+          </div>
+
           <div class="template-list" id="template-list-box" role="list">
             <!-- 자바스크립트로 동적 렌더링 -->
           </div>
+          <div class="tpl-search-empty" id="tpl-search-empty" role="status" aria-live="polite">검색 결과가 없습니다.</div>
         </section>
 
         <!-- 카드 5: JSON 백업 및 무결성 검증 (T03-C22 ~ T03-C24) -->
@@ -656,13 +680,31 @@
       renderTemplateList();
     }
 
+    // 검색어 정규화: 앞뒤 공백 제거 + 영문 대소문자 무시 (T05-06, T05-07)
+    function normalizeQuery(value) {
+      return String(value == null ? '' : value).trim().toLowerCase();
+    }
+
+    // 템플릿 이름(title)만 검색한다. 카드 본문(text)은 검색하지 않는다.
+    function filterTemplatesByTitle(list, query) {
+      const q = normalizeQuery(query);
+      if (q === '') return list;
+      return list.filter(t => String(t.title == null ? '' : t.title).toLowerCase().includes(q));
+    }
+
     function renderTemplateList() {
+      // list: 저장된 전체 목록(원본). 수정/삭제/저장은 항상 이 전체 목록 기준으로 동작한다.
       const list = loadTemplates();
       const container = document.getElementById('template-list-box');
+      const emptyBox = document.getElementById('tpl-search-empty');
+      const query = normalizeQuery(document.getElementById('tpl-search-input').value);
+      // visibleList: 화면에 표시할 항목만 걸러낸 사본 (저장 데이터는 변경하지 않음)
+      const visibleList = filterTemplatesByTitle(list, query);
       document.getElementById('tpl-count').textContent = `${list.length}개 등록됨`;
       container.innerHTML = '';
+      emptyBox.style.display = (query !== '' && visibleList.length === 0) ? 'block' : 'none';
 
-      list.forEach(item => {
+      visibleList.forEach(item => {
         const div = document.createElement('div');
         div.className = 'template-item';
         div.setAttribute('role', 'listitem');
@@ -729,6 +771,17 @@
         });
       });
     }
+
+    // 검색: 입력 즉시 목록 반영 (T05-02 ~ T05-08)
+    document.getElementById('tpl-search-input').addEventListener('input', renderTemplateList);
+
+    // 검색 초기화: 입력창 비우고 전체 목록 표시 (T05-09)
+    document.getElementById('tpl-search-reset-btn').addEventListener('click', () => {
+      const searchInput = document.getElementById('tpl-search-input');
+      searchInput.value = '';
+      renderTemplateList();
+      searchInput.focus();
+    });
 
     // 생성 (Create: T03-C17)
     document.getElementById('tpl-save-btn').addEventListener('click', () => {
